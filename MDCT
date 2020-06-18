@@ -1,0 +1,60 @@
+import math as m
+import numpy as np
+import matplotlib.pyplot as plt
+x= ##input data path
+Datasize=##choose data size
+N=512
+x1=np.zeros(Datasize)
+def MDCT(x,N):
+    Nn=len(x)//N
+    r=np.arange(N)
+    r.astype("float")
+    A=np.array([])
+    for i in range(Nn-1):
+        sum=np.zeros(N)
+        for k in range(2*N):
+            sum+=(x[i*N+k])*(m.sin(m.pi*(k+(1/2))/(2*N)))*np.array(list(map(m.cos,(m.pi*((k+(N+1)/2)*(r+1/2))/N))))
+        sum=np.array(sum)
+        #print(sum)
+        A=np.append(A,sum)
+        #print(A)
+        #print("-----------------------------------------------------")
+    A=np.append(A,np.zeros(512))
+    X=A
+    #print(X)
+    return X
+plt.subplot(3,1,1)
+plt.plot(x)
+X1=MDCT(x1,N)
+A1=np.reshape(X1,(Datasize//N,N))
+A1=A1.T
+plt.subplot(3,1,2)
+plt.imshow(A1) 
+plt.xlabel('i')
+plt.ylabel('Frequency,k')
+def IMDCT(x,X,N):
+    Nn=len(x)//N
+    k=np.arange(2*N)
+    k.astype("float")
+    B=np.zeros(len(x))
+    B.astype("float")
+    for i in range(Nn-1):
+        sum=np.zeros(2*N)
+        for r in range(N):
+            sum+=(2/N)*X[i*N+r]*np.array(list(map(m.cos,(m.pi*((k+(N+1)/2)*(r+1/2)/N)))))
+        A=np.zeros(len(x))
+        sum=np.array(sum)*np.array(list(map(m.sin,(m.pi*(k+1/2)/(2*N)))))
+        sum=sum.tolist()
+        A=A.tolist()
+        A[i*N:(i+2)*N]=sum
+        
+        B=B+A
+    xh=B
+    return xh
+xh1=IMDCT(x1,X1,N)
+A[np.where(abs(A) <= 0.0000000001)] = 0.
+print(A)
+plt.subplot(3,1,3)
+plt.plot(xh1)
+plt.xlabel('t=Ni+n')
+plt.ylabel('y_n')
